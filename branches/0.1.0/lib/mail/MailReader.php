@@ -74,6 +74,11 @@ class MailReader
 		return true;
 	}
 	
+	public function disconnect()
+	{
+		return imap_close($this->handle);
+	}
+	
 	/**
 	 * try to go to next mail
 	 *

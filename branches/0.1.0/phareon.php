@@ -1,5 +1,5 @@
 <?php
 
-ini_set('include_dir', dirname(__FILE__));
+ini_set('include_path', dirname(__FILE__));
 
 ?>
