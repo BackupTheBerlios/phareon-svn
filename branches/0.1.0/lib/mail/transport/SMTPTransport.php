@@ -106,17 +106,22 @@ class SMTPTransport extends MailTransport
 	 * @since 0.1
 	 * @access public
 	 * @return bool
-	 * @param string $from
-	 * @param array $recipients
-	 * @param array $headers
-	 * @param string body
+	 * @param MailMessage &$mail mail object
 	 * @throws MailException MailTransport.InvalidFrom
 	 * @throws MailException MailTransport.InvalidRecipient
 	 * @throws MailException MailTransport.SendFailed
 	*/
-	function send($from, $recipients, $headers, $body)
+	function send(&$mail)
 	{
-		$result = $this->smtp->mailFrom($from);
+		try(); {
+			$built= $this->build($mail);
+		}
+		if(catch('MailException', $e)) {
+			throw($e);
+			return false;
+		}
+		
+		$result = $this->smtp->mailFrom($built['from']);
 		if(PEAR::isError($result)) {
 			throw(new MailException('MailTransport.InvalidFrom',
 				sprintf("Could not set mail's from '%s'", $recipient),
@@ -125,7 +130,7 @@ class SMTPTransport extends MailTransport
 			return false;
 		}
 		
-		foreach($recipients as $recipient) {
+		foreach($built['recipients'] as $recipient) {
 			$result = $this->smtp->rcptFrom($recipient);			
 			if(!PEAR::isError($result)) {
 				continue;
@@ -138,8 +143,7 @@ class SMTPTransport extends MailTransport
 			return false;
 		}
 		
-		$data = $this->_buildHeaders($headers) . $body;
-		$result = $this->smtp->data($data);		
+		$result = $this->smtp->data($data['data']);		
 		if(!PEAR::isError($result)) {
 			return true;
 		}

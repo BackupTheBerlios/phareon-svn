@@ -149,42 +149,6 @@ class MailMessage
 	var $to = array();
 	
 	/**
-	 * built from
-	 *
-	 * @since 0.1
-	 * @access private
-	 * @var string
-	*/
-	var $_builtFrom;
-	
-	/**
-	 * built recipients
-	 *
-	 * @since 0.1
-	 * @access private
-	 * @var array
-	*/
-	var $_builtRecipients;
-	
-	/**
-	 * built headers
-	 *
-	 * @since 0.1
-	 * @access private
-	 * @var array
-	*/
-	var $_builtHeaders;
-	
-	/**
-	 * built body
-	 *
-	 * @since 0.1
-	 * @access private
-	 * @var string
-	*/
-	var $_builtBody;
-	
-	/**
 	 * xMailer
 	 *
 	 * @since 0.1
@@ -523,24 +487,11 @@ class MailMessage
 	 * @throws @see MailTransport::send();
 	*/
 	function send(&$transport)
-	{
-		{//try
-			$this->build();
+	{		
+		try(); {
+			$transport->send($this);
 		}
-		if(catch('Exception', $e)) {
-			throw($e);
-			return false;
-		}
-		
-		{//try		
-			$transport->send(
-				$this->_builtFrom,
-				$this->_builtRecipients,
-				$this->_builtHeaders,
-				$this->_buildBody
-			);
-		}
-		if(catch('Exception', $e)) {
+		if(catch('MailException', $e)) {
 			throw($e);
 			return false;
 		}

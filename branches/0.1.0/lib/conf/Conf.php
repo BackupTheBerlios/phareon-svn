@@ -137,7 +137,8 @@ class Conf
             
             throw(new ConfException('Conf.ParamNotExist',
                 sprintf("Part '%s' of conf path '%s' does not exists in domain '%s'.",
-                    $part, $path, $domain), __FILE__, __LINE)
+                    $part, $path, $domain), 
+				__FILE__, __LINE)
             );
             return false;
         }
