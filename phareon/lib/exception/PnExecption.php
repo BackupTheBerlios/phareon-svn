@@ -4,7 +4,7 @@
  * Exception for the phareon system
  *
  * @author David Molineus <david at molineus dot de>
- * @version $Revision: 1.0$
+ * @version $Revision: 12$
  * @since 0.1
  * @package phareon.lib.exception
 */
@@ -153,6 +153,61 @@ class PnException
 		
 		return $output;
 	}
+	
+	/**
+	 * magic copy method implementation for php5 
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @return PnException
+	*/
+	function __copy()
+	{
+		return $this;
+	}
+}
+
+/**
+ * pseudo catch function
+ *
+ * @since 0.1
+ * @access public
+ * @return bool
+ * @param string $name name of exception
+ * @param PnException &$e
+*/
+function catch($name, &$e)
+{
+	if(isset($GLOBALS['__PN_EXCEPTION']) && is_object($GLOBALS['__PN_EXCEPTION'])) {
+		if(is_a($GLOBALS['__PN_EXCEPTION'], $name)) {
+			$e = $GLOBALS['__PN_EXCEPTION']->__copy();
+			unset($GLOBALS['__PN_EXCEPTION']);
+			return true;
+		}
+		unset($GLOBALS['__PN_EXCEPTION']);
+	}
+	
+	return false;
+}
+
+
+/**
+ * pseudo throw function
+ *
+ * @since 0.1
+ * @access public
+ * @return void
+ * @param PnException &$e
+*/
+function throw($e)
+{
+	if(isset($GLOBALS['__PN_EXCEPTION']) && is_object($GLOBALS['__PN_EXCEPTION'])) {
+		$msg = 'Uncaught exception was found:';
+		$msg .= $GLOBALS['__PN_EXCEPTION']->toString();
+		die($msg);
+	}
+	
+	$GLOBALS['__PN_EXCEPTION'] =& $e;	
 }
 
 ?>
