@@ -2,8 +2,8 @@
 
 include_once 'lib/database/DatabaseException.php';
 include_once 'lib/database/Statement.php';
-include_once 'lib/database/Result.php';
-include_once 'lib/database/ResultSet.php';
+include_once 'lib/database/Record.php';
+include_once 'lib/database/RecordSet.php';
 
 /**
  * Database is a basic class for connect to a database and execute queries
@@ -11,14 +11,12 @@ include_once 'lib/database/ResultSet.php';
  * @author André Schmidt <schmidt at softwarecreator dot de>
  * @author David Molineus <david at molineus dot de>
  * @package phareon.lib.database
- * @since 0.1.0
 */
 class Database
 {
     /**
      * Use FETCH_ASSOC for fetching result as an associate array
      *
-     * @since 0.1.0
      * @var int
     */
     const FETCH_ASSOC = MYSQL_ASSOC;
@@ -26,7 +24,6 @@ class Database
     /**
      * Use FETCH_NUM for fetching result as a numeric array
      *
-     * @since 0.1.0
      * @var int
     */
     const FETCH_NUM = MYSQL_NUM;
@@ -34,15 +31,28 @@ class Database
     /**
      * Use FETCH_BOTH for fetching result as an associative and a numeric array
      *
-     * @since 0.1.0
      * @var int
     */
     const FETCH_BOTH = MYSQL_BOTH;
     
     /**
+     * Used for get a Record as result of Database::query()
+     *
+     * @var int
+    */
+    const Record = 1024;
+    
+    /**
+     * Used for get a RecordSet as result of Database::query()
+     *
+     * @var int
+    */
+    const RecordSet = 2048;
+    
+    
+    /**
      * Database connection resource
      *
-     * @since 0.1.0
      * @var resource
     */
     private $connection;
@@ -52,8 +62,6 @@ class Database
      *
      * disconnect database connection
      *
-     * @since 0.1.0
-     * @access public
      * @return void
     */
     function __destruct()
@@ -64,15 +72,13 @@ class Database
     /**
      * connect to database
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param string $host
      * @param string $host
      * @param string $password
      * @throws DatabaseException if connection failed
     */
-    public function connect($host, $user, $password)
+    public function connect($host, $user, $password, $database)
     {
         //connect to the database
 		$conn = mysql_connect($host,$user,$password); //connect to the host
@@ -96,8 +102,6 @@ class Database
     /**
      * disconnect to database
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
     */
     public function disconnect()
@@ -112,8 +116,6 @@ class Database
     /**
      * prepare a statement
      *
-     * @since 0.1.0
-     * @access public
      * @return Statement
      * @param string $sql
     */
@@ -125,8 +127,6 @@ class Database
     /**
      * get connection identifer
      *
-     * @since 0.1.0
-     * @access public
      * @return resource
     */
     public function getConnection()
@@ -144,16 +144,15 @@ class Database
      * <li>otherwise: int (Number of affected rows)</li>
      * </ul></code>
      *
-     * @since 0.1.0
-     * @access public
      * @return mixed
      * @param string $sql
-     * @param int $type
+     * @param int $resultType Database::RecordSet or Database::Record
+     * @param int $mode
      * throws DatabaseException if mysql_query return an error
     */
-    public function query($sql, $type=Database::FETCH_ASSOC)
+    public function query($sql, $resultType=Database::RecordSet, $mode=Database::FETCH_ASSOC)
     {
-        $result = mysql_query($sql, $this->getConnection(), $type);
+        $result = mysql_query($sql, $this->getConnection());
 
 		if($result === false)
 		{
@@ -168,13 +167,13 @@ class Database
 
 		if(stripos($sql,'select') !== false)
 		{
-			if(mysql_num_rows($result) <== 1)
+			if($resultType === Database::Record)
 			{
-				return new Result($this, $result);
+				return new Record($result, $mode);
 			}
 			else
 			{
-				return new ResultSet($this, $result);
+				return new RecordSet($result, $mode);
 			}
 		}
 		

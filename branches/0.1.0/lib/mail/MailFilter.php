@@ -14,4 +14,5 @@ abstract class MailFilter
 	
 	public abstract function execute(MailMessage $mail);
 }
+
 ?>

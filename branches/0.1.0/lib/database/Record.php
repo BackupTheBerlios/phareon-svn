@@ -8,13 +8,11 @@
  * @since 0.1.0
  * @package phareon.lib.database
 */
-class Result
+class Record
 {
     /**
      * current result row
      *
-     * @since 0.1.0
-     * @access protected
      * @var array
     */
 	protected $row;
@@ -22,8 +20,6 @@ class Result
 	/**
      * fetched result
      *
-     * @since 0.1.0
-     * @access protected
      * @var array
     */
 	protected $result;
@@ -32,8 +28,6 @@ class Result
 	/**
 	 * constructor
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return void
 	 * @param resource
 	 * @param int $mode fetch mode
@@ -41,14 +35,12 @@ class Result
 	function __construct($result, $mode = Database::FETCH_ASSOC)
 	{
 		$this->result = $result;
-		$this->row = mysql_fetch_array($this->result, $this->mode);
+		$this->row = mysql_fetch_array($this->result, $mode);
 	}
 	
 	/**
 	 * count all rows
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return int
 	*/
 	function count()
@@ -59,8 +51,6 @@ class Result
 	/**
 	 * get value as integer
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return int
 	 * @param mixed string or integer
 	 * @throws DatabaseException if index does not exists
@@ -80,8 +70,6 @@ class Result
     /**
 	 * get value as string
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return string
 	 * @param mixed string or integer
 	 * @throws DatabaseException if index does not exists
@@ -101,8 +89,6 @@ class Result
 	/**
 	 * get value as float
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return float
 	 * @param mixed string or integer
 	 * @throws DatabaseException if index does not exists
@@ -122,8 +108,6 @@ class Result
     /**
 	 * get value as array
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return array
 	 * @param mixed string or integer
 	 * @throws DatabaseException if index does not exists
@@ -143,8 +127,6 @@ class Result
 	/**
 	 * get value as boolean type
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return bool
 	 * @param mixed string or integer
 	 * @throws DatabaseException if index does not exists
@@ -171,8 +153,6 @@ class Result
 	 * check if an index is an int. if it's true the value will be decrease,
 	 * because PHP's array starts at 0 not as 1 like used in this system
 	 *
-	 * @since 0.1.0
-	 * @access protected
 	 * @return void
 	 * @param mixed
 	*/
@@ -186,8 +166,6 @@ class Result
 	/**
 	 * create an exception for throwing if an index does not exists
 	 *
-	 * @since 0.1.0
-	 * @access protected
 	 * @return DatabaseException
 	*/
 	protected function _throwInvalidIndex($index)

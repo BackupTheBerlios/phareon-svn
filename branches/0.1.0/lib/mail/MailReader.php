@@ -125,7 +125,7 @@ abstract class MailReader
 			throw new MailException(sprintf(
 				"Can not connect create imap connection using this dsn '%s'. "
 				. "Following imap errors are caught: '%s'",
-				$dsn, print_r($errors, true))				
+				$dsn, print_r($errors, true))
 			);
 
 			return false;
@@ -464,8 +464,6 @@ abstract class MailReader
 	 * get port number using security ports
 	 *
 	 * @since 0.1 
-	 * @access private
-	 * @final
 	 * @return int
 	 * @param int $secure
 	 * @param int $default

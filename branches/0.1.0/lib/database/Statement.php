@@ -28,8 +28,6 @@ class Statement
     /**
      * Params which are set for the statement
      *
-     * @since 0.1.0
-     * @access protected
      * @var array
     */
 	protected $params = array();
@@ -37,8 +35,6 @@ class Statement
 	/**
      * Sql statement
      *
-     * @since 0.1.0
-     * @access protected
      * @var string
     */
 	protected $sql;
@@ -46,8 +42,6 @@ class Statement
 	/**
      * Reference to database object
      *
-     * @since 0.1.0
-     * @access protected
      * @var Database
     */
 	protected $database;
@@ -56,8 +50,6 @@ class Statement
 	/**
      * constructor
      *
-     * @since 0.1.0
-     * @access public
      * @return void
      * @param Database
      * @param string
@@ -71,8 +63,6 @@ class Statement
 	/**
      * delete all set params
      *
-     * @since 0.1.0
-     * @access public
      * @return void
     */
 	public function deleteParams()
@@ -83,8 +73,6 @@ class Statement
 	/**
 	 * escape value
 	 *
-	 * @since 0.1.0
-	 * @access public
 	 * @return string
 	*/
 	public function escape($value)
@@ -95,8 +83,6 @@ class Statement
 	/**
      * set a param as an array
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param int $nr
      * @param array $value
@@ -115,8 +101,6 @@ class Statement
 	/**
      * set a param as a boolean value
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param int $nr
      * @param bool $value
@@ -135,8 +119,6 @@ class Statement
 	/**
      * set a param as a float
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param int $nr
      * @param float $value
@@ -155,8 +137,6 @@ class Statement
 	/**
      * set a param as an integer
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param int $nr
      * @param int $value
@@ -175,8 +155,6 @@ class Statement
 	/**
      * set a param as a null value
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param int $nr
     */
@@ -189,8 +167,6 @@ class Statement
     /**
      * set a param as a string
      *
-     * @since 0.1.0
-     * @access public
      * @return bool
      * @param int $nr
      * @param string $value
@@ -209,8 +185,6 @@ class Statement
 	/**
      * prepare sql string
      *
-     * @since 0.1.0
-     * @access public
      * @return string
      * @throws DatabaseException if number of params and gaps does not agree
     */
@@ -222,6 +196,7 @@ class Statement
                 "The number of set params '%d' does not agree with the number "
                 ."of gaps (?) '%d'  in the statement",
                 count($this->params), substr_count($this->sql, '?')
+                )
             );
 		    return false;
 		}
@@ -243,12 +218,10 @@ class Statement
      * execute statement
      *
      * @see Database::query()
-     * @since 0.1.0
-     * @access public
      * @return mixed
      * @param int $type
     */
-	public function query($type=Database::FETCH_ASSOC)
+	public function query($resultType=Database::RecordSet, $mode=Database::FETCH_ASSOC)
 	{
 	    try {
 	        $sql = $this->prepareSql();
@@ -258,7 +231,7 @@ class Statement
 	        return false;
         }
         
-	    return $this->database->query($sql, $type);
+	    return $this->database->query($sql, $resultType, $mode);
 	}
 }
 
