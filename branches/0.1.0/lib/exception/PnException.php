@@ -1,7 +1,5 @@
 <?php
 
-//include_once 'lib/exception/ExceptionList.php';
-
 /**
  * Exception for the phareon system
  *
