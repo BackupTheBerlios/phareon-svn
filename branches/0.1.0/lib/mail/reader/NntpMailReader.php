@@ -28,7 +28,7 @@ class NntpMailReader extends MailReader
 	*/
 	public function connect($host, $user, $password, $newsgroup, $secure=MailReader::SSL_NONE, $port=null)
 	{
-		$type = '/nntp';
+		$type = 'nntp';
 		
 		if($port === null) {
 			$port = $this->_getPort($secure, 119);

@@ -94,17 +94,17 @@ abstract class MailReader
 	*/
 	public function connect($host, $user, $password, $type, $mailbox, $port, $secure)
 	{
-		if((SELF::SECURE_AUTH & $secure) == SELF::SECURE_AUTH) {
+		if((self::SECURE_AUTH & $secure) == self::SECURE_AUTH) {
 			$type .= '/secure';
-			$secure = SELF::SECURE_AUTH ^ $secure;
+			$secure = self::SECURE_AUTH ^ $secure;
 		}
 		
 		switch($secure) {
-			case SELF::SSL_VALIDATE:
+			case self::SSL_VALIDATE:
 				$type .= '/ssl/validate-cert';
 			break;
-			
-			case SELF::SSL_NOVALIDATE:
+
+			case self::SSL_NOVALIDATE:
 				$type .= '/ssl/novalidate-cert';
 			break;
 		}
@@ -112,10 +112,10 @@ abstract class MailReader
 		$dsn = sprintf('{%s:%d/%s}%s', $host, $port, $type, $mailbox);
 		
 		imap_errors();
-		
+
 		$this->handle = @imap_open($dsn, $user, $password);		
 		$errors = imap_errors();
-		$pos = array_search('Mailbox is empty', $errors);
+		$pos = array_search('Mailbox is empty', (array) $errors);
 		
 		if($pos !== false) {
 			unset($errors[$pos]);
@@ -123,11 +123,11 @@ abstract class MailReader
 		
 		if(is_array($errors) && count($errors) > 0) {
 			throw new MailException(sprintf(
-				"Can not connect create imap connection using this dsn '%'. "
+				"Can not connect create imap connection using this dsn '%s'. "
 				. "Following imap errors are caught: '%s'",
 				$dsn, print_r($errors, true))				
 			);
-			
+
 			return false;
 		}
 		
@@ -292,7 +292,7 @@ abstract class MailReader
 	{	
 		$partNr = 0;
 		
-		foreach($structure->parts as $part) {			
+		foreach($structure->parts as $part) {
 			$partNr++;
 			$nr = $parentNr . '.' . $partNr;
 			
@@ -357,7 +357,7 @@ abstract class MailReader
 		
 		switch ($part['encoding'])
 		{
-			case 'quoted->printable':
+			case 'quoted-printable':
 				$content = quoted_printable_decode(
 					preg_replace("/=\?[^\?]+\?Q\?([^\s]*)\?=/i","$1", $body)
 				);
@@ -378,6 +378,8 @@ abstract class MailReader
 					)
 				);
 		}
+
+		echo $part['disposition'] . '<br />';
 		
 		if($part['disposition'] == 'inline') {
 			$this->addEmbeddedFile(
@@ -410,39 +412,39 @@ abstract class MailReader
 		$from = $this->_transformAdress($data->from[0]);
 		$seen = ($data->Recent == 'N' || $data->Unseen == 'U') ? false : true;
 
-		$mail->setFrom($[0], $from[1]);		
-		$this->setRecent(($data->Recent == '') ? false : true);
-		$this->setSeen($seen);
+		$mail->setFrom($from[0], $from[1]);
+		$mail->setRecent(($data->Recent == '') ? false : true);
+		$mail->setSeen($seen);
 		
-		if(is_array($this->to)) {
-			foreach($this->to as $adress) {
+		if(isset($data->to)) {
+			foreach($data->to as $adress) {
 				$adress = $this->_transformAdress($adress);
 				$mail->addTo($adress[0], $adress[1]);
 			}
 		}
-		
-		if(is_array($this->cc)) {
-			foreach($this->cc as $adress) {
+
+		if(isset($data->cc)) {
+			foreach($data->cc as $adress) {
 				$adress = $this->_transformAdress($adress);
 				$mail->addCc($adress[0], $adress[1]);
 			}
 		}
-		
-		if(is_array($this->bcc)) {
-			foreach($this->bcc as $adress) {
+
+		if(isset($data->bcc)) {
+			foreach($data->bcc as $adress) {
 				$adress = $this->_transformAdress($adress);
 				$mail->addBcc($adress[0], $adress[1]);
 			}
 		}
-		
-		if(is_array($this->return_path)) {
-			foreach($this->return_path as $adress) {
+
+		if(isset($data->return_path)) {
+			foreach($data->return_path as $adress) {
 				$adress = $this->_transformAdress($adress);
-				$mail->addReplyTo($adress[0], $adress[1]);				
+				$mail->addReplyTo($adress[0], $adress[1]);
 			}
 		}
-	}	
-	
+	}
+
 	/**
 	 * transform a imap mail adress into an array array($adress, $name)
 	 *
@@ -454,7 +456,7 @@ abstract class MailReader
 	*/
 	final private function _transformAdress($adress)
 	{
-		return array($adress->mailbox . '@' . $adress->host, $adress->personal);
+		return array($adress->mailbox . '@' . $adress->host, isset($adress->personal) ? $adress->personal : null);
 	}
 	
 	
@@ -468,13 +470,13 @@ abstract class MailReader
 	 * @param int $secure
 	 * @param int $default
 	*/
-	final private function _getPort($secure, $default)
+	final protected function _getPort($secure, $default)
 	{
-		if((SELF::SSL_VALIDATE & $secure) == SELF::SSL_VALIDATE) {
+		if((self::SSL_VALIDATE & $secure) == self::SSL_VALIDATE) {
 			return 993;
 		}
-		
-		if((SELF::SSL_NOVALIDATE & $secure) == SELF::SSL_NOVALIDATE) {
+
+		if((self::SSL_NOVALIDATE & $secure) == self::SSL_NOVALIDATE) {
 			return 995;
 		}
 		

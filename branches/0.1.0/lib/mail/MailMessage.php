@@ -146,8 +146,8 @@ class MailMessage
 	 * @access protected
 	 * @var int
 	*/
-	protected $priority = SELF::PRIORITY_NORMAL;
-	
+	protected $priority;
+
 	/**
 	 * mail subject 
 	 *
@@ -192,7 +192,7 @@ class MailMessage
 	 * @var bool
 	*/
 	protected $seen = false;
-	
+
 	/**
 	 * is message still recent
 	 *
@@ -201,9 +201,17 @@ class MailMessage
 	 * @var bool
 	*/
 	protected $recent = true;
-	
-	
-	
+
+	/**
+	 * message id
+	 *
+	 * @since 0.1.0
+	 * @access protected
+	 * @var bool
+	*/
+	protected $msgid;
+
+
 	/**
 	 * Constructor
 	 *
@@ -218,6 +226,7 @@ class MailMessage
 		$this->hostName = ($sName != '') ? $sName : 'localhost';		
 		$this->date = time();
 		$this->xMailer = 'Phareon ' . PHAREON_VERSION;
+		$this->priority = self::PRIORITY_NORMAL;
 	}
 	
 	/**
@@ -681,6 +690,19 @@ class MailMessage
 	public function setRecent($value)
 	{
 		$this->recent = (bool) $value;
+	}
+
+	/**
+	 * set message id
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @return void
+	 * @param bool $value
+	*/
+	public function setMessageId($value)
+	{
+		$this->msgid = $value;
 	}
 	
 	/**

@@ -26,7 +26,7 @@ class ImapMailReader extends MailReader
 	*/
 	public function connect($host, $user, $password, $secure=MailReader::SSL_NONE, $port=null)
 	{
-		$type = '/service=imap';
+		$type = 'service=imap';
 		$mailbox = 'INBOX';
 		
 		if($port === null) {

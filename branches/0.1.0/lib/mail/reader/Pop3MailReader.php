@@ -26,7 +26,7 @@ class Pop3MailReader extends MailReader
 	*/
 	public function connect($host, $user, $password, $secure=MailReader::SSL_NONE, $port=null)
 	{
-		$type = '/pop3';
+		$type = 'pop3';
 		$mailbox = 'INBOX';
 		
 		if($port === null) {
