@@ -149,6 +149,15 @@ class MailMessage
 	var $to = array();
 	
 	/**
+	 * built from
+	 *
+	 * @since 0.1
+	 * @access private
+	 * @var string
+	*/
+	var $_builtFrom;
+	
+	/**
 	 * built recipients
 	 *
 	 * @since 0.1
@@ -303,6 +312,21 @@ class MailMessage
 	function addTo($email, $name=null)
 	{
 		$this->to[] = array($email, $name);
+	}
+	
+	/**
+	 * build mail message for sending
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @return void
+	*/
+	function build()
+	{
+		$this->_buildFrom();
+		$this->_buildRecipients();
+		$this->_buildHeaders();
+		$this->_buildBody();
 	}
 	
 	/**
@@ -510,6 +534,7 @@ class MailMessage
 		
 		{//try		
 			$transport->send(
+				$this->_builtFrom,
 				$this->_builtRecipients,
 				$this->_builtHeaders,
 				$this->_buildBody

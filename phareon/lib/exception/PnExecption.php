@@ -1,5 +1,7 @@
 <?php
 
+include_once 'lib/exception/ExceptionList.php';
+
 /**
  * Exception for the phareon system
  *
@@ -26,7 +28,7 @@ class PnException
 	 * @access protected
 	 * @var array
 	*/
-	var $backtrace;
+	var $trace;
 	
 	/**
 	 * file where exception was thrown
@@ -72,7 +74,7 @@ class PnException
 		$this->message = $message;
 		$this->file = $file;
 		$this->line = $line;
-		$this->backtrace = debug_backtrace();
+		$this->trace = debug_backtrace();
 	}
 	
 	/**
@@ -130,9 +132,9 @@ class PnException
 	 * @access public
 	 * @return array
 	*/
-	function getBacktrace()
+	function getTrace()
 	{
-		return $this->backtrace;
+		return $this->trace;
 	}
 	
 	/**
@@ -165,49 +167,6 @@ class PnException
 	{
 		return $this;
 	}
-}
-
-/**
- * pseudo catch function
- *
- * @since 0.1
- * @access public
- * @return bool
- * @param string $name name of exception
- * @param PnException &$e
-*/
-function catch($name, &$e)
-{
-	if(isset($GLOBALS['__PN_EXCEPTION']) && is_object($GLOBALS['__PN_EXCEPTION'])) {
-		if(is_a($GLOBALS['__PN_EXCEPTION'], $name)) {
-			$e = $GLOBALS['__PN_EXCEPTION']->__copy();
-			unset($GLOBALS['__PN_EXCEPTION']);
-			return true;
-		}
-		unset($GLOBALS['__PN_EXCEPTION']);
-	}
-	
-	return false;
-}
-
-
-/**
- * pseudo throw function
- *
- * @since 0.1
- * @access public
- * @return void
- * @param PnException &$e
-*/
-function throw($e)
-{
-	if(isset($GLOBALS['__PN_EXCEPTION']) && is_object($GLOBALS['__PN_EXCEPTION'])) {
-		$msg = 'Uncaught exception was found:';
-		$msg .= $GLOBALS['__PN_EXCEPTION']->toString();
-		die($msg);
-	}
-	
-	$GLOBALS['__PN_EXCEPTION'] =& $e;	
 }
 
 ?>

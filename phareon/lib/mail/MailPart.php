@@ -15,7 +15,21 @@ class MailPart
 	var $contentEncoding;
 	var $boundaryId;
 	
+	function setContent($content)
+	{
+	}
 	
+	function setContentEncoding($encoding)
+	{
+	}
+	
+	function setContentType($type)
+	{
+	}
+	
+	function setBoundaryId($id)
+	{
+	}
 }
 
 ?>
