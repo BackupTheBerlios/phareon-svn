@@ -9,7 +9,7 @@ include_once 'lib/database/Database.php';
 $connection = new Database();
 
 try {
-    $connection->connect('fileserver', 'lan', '...', 'intranet');
+    $connection->connect('fileserver', 'lan', 'samTron', 'intranet');
 }
 catch(DatabaseException $e) {
     die($e->toString());
@@ -66,5 +66,14 @@ catch(DatabaseException $e) {
 }
 
 print_r($connection->query('SELECT * FROM test', Database::Record));
+
+
+$statement = $connection->prepareStatement('SHOW COLUMNS FROM test');
+
+$rs = $statement->query(Database::RecordSet | Database::FORCE_RESULT);
+
+while($rs->next()) {
+    print_r($rs);
+}
 
 ?>

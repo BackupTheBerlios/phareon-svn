@@ -210,6 +210,9 @@ class Statement
 				$sql = $sql . $p[$i] . $this->params[$i+1];
 			}
 		}
+		else {
+		    $sql = $this->sql;
+		}
 
 		return $sql;
 	}

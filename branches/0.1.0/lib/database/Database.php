@@ -49,6 +49,16 @@ class Database
     */
     const RecordSet = 2048;
     
+    /**
+     * FORCE_RESULT forces a record or recordset as result of query
+     *
+     * Example:
+     * $db->query($sql, Database::RecordSet | Database::FORCE_RESULT)
+     *
+     * @var int
+    */
+    const FORCE_RESULT = 4096;
+    
     
     /**
      * Database connection resource
@@ -197,10 +207,12 @@ class Database
             );
 			return false;
 		}
+		
+		$force = ($resultType & self::FORCE_RESULT) === self::FORCE_RESULT;
 
-		if(stripos($sql,'select') !== false)
+		if((stripos($sql,'select') !== false) || $force)
 		{
-			if($resultType === Database::Record)
+			if($resultType === self::Record)
 			{
 				return new Record($result, $mode);
 			}

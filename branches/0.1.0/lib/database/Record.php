@@ -135,18 +135,29 @@ class Record
 	{
 	    $this->_checkIndex($index);
 	    
-	    if(isset($this->row[$index]))
+	    if(!isset($this->row[$index]))
         {
-	        return strval($this->row[$index]);
+            throw($this->_throwInvalidIndex($index));
+            return;
 	    }
-	
-	    throw($this->_throwInvalidIndex($index));
 	    
-		if ($this->row[$index] === 1)
-		{
-			return true;
-		}
-		return false;
+	    switch($this->row[$index]) {
+            case 'YES':
+            case 1:
+                $result = true;
+            break;
+            
+            case 'NO':
+            case '':
+            case 0:
+                $result = false;
+            break;
+            
+            default:
+                $result = (bool) $this->row[$index];
+        }
+        
+        return $result;
 	}
 	
 	/**
