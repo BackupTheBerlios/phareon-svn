@@ -1,6 +1,6 @@
 <?php
 
-include_once 'lib/exception/ExceptionList.php';
+//include_once 'lib/exception/ExceptionList.php';
 
 /**
  * Exception for the phareon system
@@ -10,131 +10,19 @@ include_once 'lib/exception/ExceptionList.php';
  * @since 0.1
  * @package phareon.lib.exception
 */
-class PnException
-{
-	/**
-	 * exception identifer
-	 *
-	 * @since 0.1
-	 * @access protected
-	 * @var string
-	*/
-	var $id;
-	
-	/**
-	 * backrace information
-	 *
-	 * @since 0.1
-	 * @access protected
-	 * @var array
-	*/
-	var $trace;
-	
-	/**
-	 * file where exception was thrown
-	 *
-	 * @since 0.1
-	 * @access protected
-	 * @var string
-	*/
-	var $file;
-	
-	/**
-	 * int where exception was thrown
-	 *
-	 * @since 0.1
-	 * @access protected
-	 * @var int
-	*/
-	var $line;
-	
-	/**
-	 * exception message
-	 *
-	 * @since 0.1
-	 * @access protected
-	 * @var string
-	*/
-	var $message;
-	
+class PnException extends Exception
+{	
 	/**
 	 * constructor
 	 *
 	 * @since 0.1
 	 * @access public
 	 * @return void
-	 * @param string $id
 	 * @param string $message
-	 * @param string $file
-	 * @param string $line
 	*/
-	function PnException($id, $message, $file=null, $line=null)
+	function __constrcut($message)
 	{
-		$this->id = $id;
-		$this->message = $message;
-		$this->file = $file;
-		$this->line = $line;
-		$this->trace = debug_backtrace();
-	}
-	
-	/**
-	 * get exception id
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @return string
-	*/
-	function getId()
-	{
-		return $this->id;
-	}
-	
-	/**
-	 * get exception message
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @return string
-	*/
-	function getMessage()
-	{
-		return $this->message;
-	}
-	
-	/**
-	 * get file
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @return string
-	*/
-	function getFile()
-	{
-		return $this->file;
-	}
-	
-	/**
-	 * get line
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @return int
-	*/
-	function getLine()
-	{
-		return $this->line;
-	}
-	
-	/**
-	 * get backtrace
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @return array
-	*/
-	function getTrace()
-	{
-		return $this->trace;
+		parent::__construct($message);
 	}
 	
 	/**
@@ -146,26 +34,29 @@ class PnException
 	*/
 	function toString()
 	{
-		$output = '<ul>';
-		$output .= '<b>ID:</b> ' . $this->getId();
-		$output .= '<b>Message:</b> ' . $this->getMessage();
-		$output .= '<b>File:</b> ' . $this->getFile();
-		$output .= '<b>Line:</b> ' . $this->getLine();
-		$output .= '</ul>' . "\r\n";
-		
-		return $output;
-	}
-	
-	/**
-	 * magic copy method implementation for php5 
-	 *
-	 * @since 0.1
-	 * @access public
-	 * @return PnException
-	*/
-	function __copy()
-	{
-		return $this;
+		$id = md5(uniqid(time()));
+        $nl = "\r\n";
+        
+        ob_start();
+        echo '<div style="display: block; border: 1px solid #ff0000;';
+        echo 'padding:5px; background-color: #f5f5f5; margin: 5px;">' . $nl;
+        echo '<b>Exception "' . get_class($this) . '" was thrown:</b>' . $nl;
+        echo '<ul>' . $nl;
+        echo '<li><b>Message:</b> ' . $this->message . '</li>' . $nl;
+        echo '<li><b>File:</b> ' . $this->file . '</li>' . $nl;
+        echo '<li><b>Line:</b> ' . $this->line . ' </li>' . $nl;
+        echo '<li><b>Debug backtrace:</b> <a href="#top" onclick="';
+        echo 'document.getElementById(\''.$id.'\').style.display =';
+        echo '((document.getElementById(\''.$id.'\').style.display == \'none\')';
+        echo ' ? \'block\' : \'none\');">show / hide</a>' . $nl;
+        echo '<div id="' .$id. '" style="display:none;"><pre>' . $nl;
+        print_r($this->trace);
+        echo '</pre></div></li>' . $nl;
+        echo '</ul></div>' . $nl;
+        
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
 	}
 }
 

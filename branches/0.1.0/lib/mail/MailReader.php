@@ -1,6 +1,7 @@
 <?php
 
 include_once 'lib/mail/MailMessage.php';
+include_once 'lib/mail/MailException.php';
 
 /**
  * MailReader fetch all messages from a mail box and transform the message into
