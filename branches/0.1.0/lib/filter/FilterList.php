@@ -20,7 +20,7 @@ class FilterList
 
     function execute($value)
     {
-        $keys = array_keys($this->validators);
+        $keys = array_keys($this->filters);
 
         foreach($keys as $key) {
             $this->filters[$key]->execute($value, $this->params[$key]);
