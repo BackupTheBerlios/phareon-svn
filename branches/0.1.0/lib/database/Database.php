@@ -78,7 +78,7 @@ class Database
      * @param string $database database name
      * @throws DatabaseException if connection failed
     */
-    public function connect($host, $user, $password, $database = null)
+    final public function connect($host, $user, $password, $database = null)
     {
         //connect to the database
 		$conn = mysql_connect($host,$user,$password); //connect to the host
@@ -115,7 +115,7 @@ class Database
      * @return bool
      * @param string $database database name
     */
-    public function selectDatabase($database)
+    final public function selectDatabase($database)
     {
         $result = mysql_select_db($database, $this->getConnection());
         if($result) {
@@ -136,10 +136,10 @@ class Database
      *
      * @return bool
     */
-    public function disconnect()
+    final public function disconnect()
     {
         if(is_resource($this->connection)) {
-            return mysql_close($this->getConnection());
+            return mysql_close($this->connection);
         }
         
         return false;
@@ -161,7 +161,7 @@ class Database
      *
      * @return resource
     */
-    public function getConnection()
+    final public function getConnection()
     {
         return $this->connection;
     }

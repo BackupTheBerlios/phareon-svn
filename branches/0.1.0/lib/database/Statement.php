@@ -158,7 +158,7 @@ class Statement
      * @return bool
      * @param int $nr
     */
-	public function setNULL($nr)
+	public function setNull($nr)
 	{
 		$this->params[$nr] = 'NULL';
 		return true;
