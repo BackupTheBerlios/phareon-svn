@@ -42,7 +42,7 @@ class PnException extends Exception
         $out .= '<li><b>Message:</b> ' . $this->message . '</li>' . $nl;
         $out .= '<li><b>File:</b> ' . $this->file . '</li>' . $nl;
         $out .= '<li><b>Line:</b> ' . $this->line . ' </li>' . $nl;
-        $out .= '<li><b>Debug backtrace:</b> <a href="#top" onclick="';
+        $out .= '<li><b>Debug backtrace:</b> <a href="#" onclick="';
         $out .= 'document.getElementById(\''.$id.'\').style.display =';
         $out .= '((document.getElementById(\''.$id.'\').style.display == \'none\')';
         $out .= ' ? \'block\' : \'none\');">show / hide</a>' . $nl;

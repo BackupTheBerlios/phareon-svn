@@ -76,9 +76,10 @@ class Database
      * @param string $host
      * @param string $host
      * @param string $password
+     * @param string $database database name
      * @throws DatabaseException if connection failed
     */
-    public function connect($host, $user, $password, $database)
+    public function connect($host, $user, $password, $database = null)
     {
         //connect to the database
 		$conn = mysql_connect($host,$user,$password); //connect to the host
@@ -92,11 +93,43 @@ class Database
             
 			return false;
 		}
-		else
-		{
-			mysql_select_db($database,$conn); //select the database
-			return $this->connection = $conn; //handle of the connection
+		
+        $this->connection = $conn; //handle of the connection
+			
+		if($database === null) {
+		    return true;
 		}
+		
+		try {
+		    $this->selectDatabase($database);
+		}
+		catch(DatabaseException $e) {
+		    throw $e;
+		}
+		
+		return false;	
+    }
+    
+    /**
+     * select database
+     *
+     * @return bool
+     * @param string $database database name
+    */
+    public function selectDatabase($database)
+    {
+        $result = mysql_select_db($database, $this->getConnection());
+        if($result) {
+            return true;
+        }
+        
+        throw new DatabaseException(sprintf(
+            "Select database '%s' failed. Following error is occured: '%s'",
+            $database, mysql_error($this->getConnection())
+            )
+        );
+        
+        return false;
     }
 
     /**

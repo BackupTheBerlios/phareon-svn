@@ -9,7 +9,7 @@ include_once 'lib/database/Database.php';
 $connection = new Database();
 
 try {
-    $connection->connect('fileserver', 'lan', 'samTron', 'intranet');
+    $connection->connect('fileserver', 'lan', '...', 'intranet');
 }
 catch(DatabaseException $e) {
     die($e->toString());
@@ -30,6 +30,7 @@ catch(DatabaseException $e) {
 }
 
 print_r($record);
+echo 'Anzahl der Datensätze: ' . $record->count() . '<br />';
 
 
 try {
@@ -44,6 +45,26 @@ while($recordSet->next()) {
     print_r($recordSet);
 }
 
-echo 'Anzahl der Datensätze: ' . $recordSet->count();
+echo 'Anzahl der Datensätze: ' . $recordSet->count() . '<br />';
+
+
+$connection->selectDatabase('David');
+
+$sql = 'UPDATE test SET name = ? WHERE id = ?';
+$statement = $connection->prepareStatement($sql);
+$statement->setString(1, md5(uniqid()));
+$statement->setInteger(2, 1);
+
+echo $statement->prepareSql() . '<br />';
+
+try {
+    print_r($statement->query());
+    echo '<br /><b>' . mysql_affected_rows() . '</b>';
+}
+catch(DatabaseException $e) {
+    die($e->toString());
+}
+
+print_r($connection->query('SELECT * FROM test', Database::Record));
 
 ?>
