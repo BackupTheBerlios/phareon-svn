@@ -70,7 +70,7 @@ print_r($connection->query('SELECT * FROM test', Database::Record));
 
 $statement = $connection->prepareStatement('SHOW COLUMNS FROM test');
 
-$rs = $statement->query(Database::RecordSet | Database::FORCE_RESULT);
+$rs = $statement->query();
 
 while($rs->next()) {
     print_r($rs);
