@@ -57,13 +57,16 @@ class MailReader
 	*/
 	public function connect($host, $user, $password, $port=110)
 	{
-		$dsn = sprintf('{%s:%d}INBOX', $host, $port);
+		$dsn = sprintf('{%s:%d/pop3}INBOX', $host, $port);
+		imap_errors();
 		$this->handle = @imap_open($dsn, $user, $password);
 		
-		if(!is_resource($this->handle)) {
+		$errors = imap_errors();
+		if(is_array($errors) && count($errors) > 0) {
 			throw new MailException(
-				sprintf("Can not connect to ('%s' : '%d'), user '%s'",
-					$host, $port, $user
+				sprintf("Can not connect to ('%s' : '%d'), user '%s'. Following"
+					." imap errors was thrown: '%s'",
+					$host, $port, $user, var_export($errors, 1)
 				)				
 			);
 			
@@ -76,7 +79,8 @@ class MailReader
 	
 	public function disconnect()
 	{
-		return imap_close($this->handle);
+		imap_expunge($this->handle);
+		imap_close($this->handle);
 	}
 	
 	/**
@@ -106,7 +110,7 @@ class MailReader
 	public function reset()
 	{
 		$this->count = imap_num_msg($this->handle);
-		$this->current = 1;
+		$this->current = 0;
 	}
 	
 	/**
@@ -142,14 +146,20 @@ class MailReader
 	public function getHeader()
 	{
 		$header = array();
-		$data = imap_header($this->header, $this->current);
+		$data = imap_header($this->handle, $this->current);
+		
+		/*
+		echo '<pre>(' . $this->current . ')<br/>';
+		print_r($data);
+		echo '</pre>';
+		*/
 		
 		$header['msgid'] = $data->message_id;
 		$header['subject'] = $data->subject;
 		$header['date'] = $data->date;
-		$header['from'] = $data->fromadress;
-		$header['recent'] = ($data->recent == '') ? false : true;
-		$header['seen'] = ($data->recent == 'N' || $data->unseen == 'U') 
+		$header['from'] = $data->fromaddress;
+		$header['recent'] = ($data->Recent == '') ? false : true;
+		$header['seen'] = ($data->Recent == 'N' || $data->Unseen == 'U') 
 						? false : true;
 		
 		return $header;		
