@@ -12,9 +12,35 @@ include_once 'lib/mail/MailException.php';
  * @author David Molineus <david at molineus dot de>
  * @since 0.1
  * @package phareon.lib.mail
+ * @abstract
 */
-class MailReader
+abstract class MailReader
 {
+	/**
+	 * no secure connection
+	 *
+	 * @accss public
+	 * @var int
+	*/
+	const SSL_NONE = 0;
+	
+	/**
+	 * secure connection with certificate validation
+	 *
+	 * @accss public
+	 * @var int
+	*/
+	const SSL_VALIDATE = 1;
+	
+	/**
+	 * secure connection without certificate validation
+	 *
+	 * @accss public
+	 * @var int
+	*/
+	const SSL_NOVALIDATE = 2;
+	
+
 	/**
 	 * mail box handle
 	 * 
@@ -52,22 +78,42 @@ class MailReader
 	 * @param string $host mail server
 	 * @param string $user
 	 * @param string $password
+	 * @param string $type connection type
+	 * @param string $mailbox mailbox name
 	 * @param int $port=110
+	 * @param int $secure level
 	 * @throws MailException
 	*/
-	public function connect($host, $user, $password, $port=110)
+	public function connect($host, $user, $password, $type, $mailbox, $port, $secure)
 	{
-		$dsn = sprintf('{%s:%d/pop3}INBOX', $host, $port);
-		imap_errors();
-		$this->handle = @imap_open($dsn, $user, $password);
+		switch($secure) {
+			case SELF::SSL_VALIDATE:
+				$type .= '/ssl/validate-cert';
+				$port = 993;
+			break;
+			
+			case SELF::SSL_NOVALIDATE:
+				$type .= '/ssl/novalidate-cert';
+				$port = 995;
+			break;
+		}
+				
+		$dsn = sprintf('{%s:%d/%s}%s', $host, $port, $type, $mailbox);
 		
+		imap_errors();
+		
+		$this->handle = @imap_open($dsn, $user, $password);		
 		$errors = imap_errors();
+		$pos = array_search('Mailbox is empty', $errors);
+		
+		if($pos !== false) {
+			unset($errors[$pos]);
+		}
+		
 		if(is_array($errors) && count($errors) > 0) {
-			throw new MailException(
-				sprintf("Can not connect to ('%s' : '%d'), user '%s'. Following"
-					." imap errors was thrown: '%s'",
-					$host, $port, $user, var_export($errors, 1)
-				)				
+			throw new MailException(sprintf(
+				"Can not connect create imap connection using this dsn '%'",
+				$dsn)				
 			);
 			
 			return false;
@@ -77,10 +123,29 @@ class MailReader
 		return true;
 	}
 	
+	/**
+	 * disconnect imap connection
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @return void
+	*/
 	public function disconnect()
 	{
 		imap_expunge($this->handle);
 		imap_close($this->handle);
+	}
+	
+	/**
+	 * returns number of mails in the mailbox
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @return int
+	*/	
+	public function countMails()
+	{
+		return $this->count;
 	}
 	
 	/**
