@@ -168,7 +168,7 @@ class Database
 
 		if(stripos($sql,'select') !== false)
 		{
-			if(mysql_num_rows($result) === 1)
+			if(mysql_num_rows($result) <== 1)
 			{
 				return new Result($this, $result);
 			}
