@@ -8,15 +8,42 @@ include_once 'lib/mail/MailPart.php';
  * 
  * @author David Molineus <david at molineus dot de>
  * @version $Revision: 1.0$
- * @since 0.1
+ * @since 0.1.0
  * @package phareon.lib.mail
 */
 class MailMessage
 {
 	/**
-	 * attachments of the e-mail 
+	 * high priority state
 	 *
 	 * @since 0.1
+	 * @access public
+	 * @var int
+	*/
+	const PRIORITY_HIGH = 1;
+
+	/**
+	 * normal priority state
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var int
+	*/
+	const PRIORITY_NORMAL = 3;
+	
+	/**
+	 * low priority state
+	 *
+	 * @since 0.1
+	 * @access public
+	 * @var int
+	*/
+	const PRIORITY_LOW = 5;
+	
+	/**
+	 * attachments of the e-mail 
+	 *
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -25,7 +52,7 @@ class MailMessage
 	/**
 	 * bcc contact data
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -34,7 +61,7 @@ class MailMessage
 	/**
 	 * cc contact data
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -43,7 +70,7 @@ class MailMessage
 	/**
 	 * date
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
@@ -52,7 +79,7 @@ class MailMessage
 	/**
 	 * embededFiles 
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -61,7 +88,7 @@ class MailMessage
 	/**
 	 * from data
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -70,7 +97,7 @@ class MailMessage
 	/**
 	 * email headers
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -79,7 +106,7 @@ class MailMessage
 	/**
 	 * server hostname
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
@@ -88,7 +115,7 @@ class MailMessage
 	/**
 	 * html body
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
@@ -97,7 +124,7 @@ class MailMessage
 	/**
 	 * mail type
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
@@ -106,7 +133,7 @@ class MailMessage
 	/**
 	 * reply to contact data
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -115,16 +142,16 @@ class MailMessage
 	/**
 	 * priority of email
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var int
 	*/
-	protected $priority = 3;
+	protected $priority = SELF::PRIORITY_NORMAL;
 	
 	/**
 	 * mail subject 
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
@@ -133,7 +160,7 @@ class MailMessage
 	/**
 	 * plain text body 
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
@@ -142,7 +169,7 @@ class MailMessage
 	/**
 	 * to contact data
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var array
 	*/
@@ -151,21 +178,40 @@ class MailMessage
 	/**
 	 * xMailer
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access protected
 	 * @var string
 	*/
 	protected $xMailer;
 	
+	/**
+	 * is message already seen
+	 *
+	 * @since 0.1.0
+	 * @access protected
+	 * @var bool
+	*/
+	protected $seen = false;
+	
+	/**
+	 * is message still recent
+	 *
+	 * @since 0.1.0
+	 * @access protected
+	 * @var bool
+	*/
+	protected $recent = true;
+	
+	
 	
 	/**
 	 * Constructor
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	*/
-	function MailMessage()
+	function __construct()
 	{
 		$sName = getenv('SERVER_NAME');
 		
@@ -177,7 +223,7 @@ class MailMessage
 	/**
 	 * add an attachment to mail
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string $content file content or file path
@@ -185,7 +231,7 @@ class MailMessage
 	 * @param string $encoding encoding type
 	 * @param string $cType content type
 	*/
-	function addAttachment($content, $name=null, $encoding='base4', $cType='application/octet-stream')
+	public function addAttachment($content, $name=null, $encoding='base4', $cType='application/octet-stream')
 	{		
 		$part = $this->_createMailPart($content, $name, $encoding, $cType);
 		$part->setDisposition('attachment');
@@ -197,13 +243,13 @@ class MailMessage
 	/**
 	 * add an bcc contact to email
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string email adress
 	 * @param string contact name
 	*/
-	function addBcc($email, $name=null)
+	public function addBcc($email, $name=null)
 	{
 		$this->bcc[] = array($email, $name);
 	}
@@ -211,13 +257,13 @@ class MailMessage
 	/**
 	 * add an cc contact to email
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string email adress
 	 * @param string contact name
 	*/
-	function addCc($email, $name=null)
+	public function addCc($email, $name=null)
 	{
 		$this->cc[] = array($email, $name);
 	}
@@ -225,7 +271,7 @@ class MailMessage
 	/**
 	 * add an embedded file to mail
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string $content file content or file path
@@ -233,7 +279,7 @@ class MailMessage
 	 * @param string $encoding encoding type
 	 * @param string $cType content type
 	*/
-	function addEmbeddedFile($content, $name=null, $encoding='base4', $cType='application/octet-stream')
+	public function addEmbeddedFile($content, $name=null, $encoding='base4', $cType='application/octet-stream')
 	{		
 		$part =& $this->_createMailPart($content, $name, $encoding, $cType);
 		$part->setDisposition('inline');
@@ -245,13 +291,13 @@ class MailMessage
 	/**
 	 * add header to mail
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string name
 	 * @param string value
 	*/
-	function addHeader($name, $value)
+	public function addHeader($name, $value)
 	{
 		$this->headers[$name] = $value;
 	}
@@ -259,13 +305,13 @@ class MailMessage
 	/**
 	 * add an replyto contact to email
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string email adress
 	 * @param string contact name
 	*/
-	function addReplyTo($email, $name=null)
+	public function addReplyTo($email, $name=null)
 	{
 		$this->replyTo[] = array($email, $name);
 	}
@@ -273,13 +319,13 @@ class MailMessage
 	/**
 	 * add an to contact to email
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string email adress
 	 * @param string contact name
 	*/
-	function addTo($email, $name=null)
+	public function addTo($email, $name=null)
 	{
 		$this->to[] = array($email, $name);
 	}
@@ -287,11 +333,11 @@ class MailMessage
 	/**
 	 * build mail message for sending
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	*/
-	function build()
+	public function build()
 	{
 		$this->_buildFrom();
 		$this->_buildRecipients();
@@ -302,11 +348,11 @@ class MailMessage
 	/**
 	 * get attachments
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getAttachments()
+	public function getAttachments()
 	{
 		return $this->attachments;
 	}
@@ -314,11 +360,11 @@ class MailMessage
 	/**
 	 * get bcc
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getBcc()
+	public function getBcc()
 	{
 		return $this->bcc;
 	}
@@ -326,11 +372,11 @@ class MailMessage
 	/**
 	 * get cc
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getCc()
+	public function getCc()
 	{
 		return $this->Cc;
 	}
@@ -338,11 +384,11 @@ class MailMessage
 	/**
 	 * get embedded files
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getEmbeddedFiles()
+	public function getEmbeddedFiles()
 	{
 		return $this->embeddedFiles;
 	}
@@ -350,12 +396,12 @@ class MailMessage
 	/**
 	 * get date
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @param string $format=null date format for php's date function
 	 * @return string
 	*/
-	function getDate($format=null)
+	public function getDate($format=null)
 	{
 		if($format !== null) {
 			$date = date($format, $this->date);
@@ -367,11 +413,11 @@ class MailMessage
 	/**
 	 * get from
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getFrom()
+	public function getFrom()
 	{
 		return $this->from;
 	}
@@ -379,11 +425,11 @@ class MailMessage
 	/**
 	 * get headers
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getHeaders()
+	public function getHeaders()
 	{
 		return $this->headers;
 	}
@@ -391,11 +437,11 @@ class MailMessage
 	/**
 	 * get hostname
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return string
 	*/
-	function getHostname()
+	public function getHostname()
 	{
 		return $this->hostname;
 	}
@@ -403,11 +449,11 @@ class MailMessage
 	/**
 	 * get html body
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return string
 	*/
-	function getHtmlBody()
+	public function getHtmlBody()
 	{
 		return $this->htmlBody;
 	}
@@ -415,11 +461,11 @@ class MailMessage
 	/**
 	 * get reply to
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getReplyTo()
+	public function getReplyTo()
 	{
 		return $this->replyTo;
 	}
@@ -427,11 +473,11 @@ class MailMessage
 	/**
 	 * get priority
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return int
 	*/
-	function getPriority()
+	public function getPriority()
 	{
 		return $this->priority;
 	}
@@ -439,11 +485,11 @@ class MailMessage
 	/**
 	 * get subject
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return string
 	*/
-	function getSubject()
+	public function getSubject()
 	{
 		return $this->subject;
 	}
@@ -451,11 +497,11 @@ class MailMessage
 	/**
 	 * get text body
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return string
 	*/
-	function getTextBody()
+	public function getTextBody()
 	{
 		return $this->textBody;
 	}
@@ -463,11 +509,11 @@ class MailMessage
 	/**
 	 * get to contact data
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return array
 	*/
-	function getTo()
+	public function getTo()
 	{
 		return $this->to;
 	}
@@ -475,11 +521,11 @@ class MailMessage
 	/**
 	 * get xmailer
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return string
 	*/
-	function getXMailer()
+	public function getXMailer()
 	{
 		return $this->xMailer;
 	}
@@ -487,12 +533,12 @@ class MailMessage
 	/**
 	 * send mail
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return bool
 	 * @throws @see MailTransport::send();
 	*/
-	function send(&$transport)
+	public function send(&$transport)
 	{		
 		try {
 			$transport->send($this);
@@ -508,12 +554,12 @@ class MailMessage
 	/**
 	 * set date
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string date
 	*/
-	function setDate($date)
+	public function setDate($date)
 	{
 		$this->date = $date;
 	}
@@ -521,13 +567,13 @@ class MailMessage
 	/**
 	 * set from contact to email
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string email adress
 	 * @param string contact name
 	*/
-	function setFrom($email, $name)
+	public function setFrom($email, $name)
 	{
 		$this->from = array($email, $name);
 	}
@@ -535,12 +581,12 @@ class MailMessage
 	/**
 	 * set hostname
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string hostname
 	*/
-	function setHostname($hostname)
+	public function setHostname($hostname)
 	{
 		$this->hostname = $hostname;
 	}
@@ -548,12 +594,12 @@ class MailMessage
 	/**
 	 * set text body
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string body
 	*/
-	function setHtmlBody($body)
+	public function setHtmlBody($body)
 	{
 		$this->htmlBody = $body;
 		$this->setContentType('text/html');
@@ -562,12 +608,12 @@ class MailMessage
 	/**
 	 * set priority
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param int priority
 	*/
-	function setPriority($priority)
+	public function setPriority($priority)
 	{
 		$this->priority = $priority;
 	}
@@ -575,12 +621,12 @@ class MailMessage
 	/**
 	 * set subject
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string subject
 	*/
-	function setSubject($subject)
+	public function setSubject($subject)
 	{
 		$this->subject = $subject;
 	}
@@ -588,12 +634,12 @@ class MailMessage
 	/**
 	 * set text body
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string body
 	*/
-	function setTextBody($body)
+	public function setTextBody($body)
 	{
 		$this->textBody = $body;
 	}
@@ -601,29 +647,78 @@ class MailMessage
 	/**
 	 * set Xmailer
 	 *
-	 * @since 0.1
+	 * @since 0.1.0
 	 * @access public
 	 * @return void
 	 * @param string x mailer
 	*/
-	function setXMailer($mailer)
+	public function setXMailer($mailer)
 	{
 		$this->xMailer = $mailer;
 	}
 	
+	/**
+	 * set seen state
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @return void
+	 * @param bool $value
+	*/
+	public function setSeen($value)
+	{
+		$this->seen = (bool) $value;
+	}
+	
+	/**
+	 * set recent state
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @return void
+	 * @param bool $value
+	*/
+	public function setRecent($value)
+	{
+		$this->recent = (bool) $value;
+	}
+	
+	/**
+	 * get seen state
+	 *
+	 * @since 0.1.0.0
+	 * @access public
+	 * @return bool
+	*/
+	public function isSeen()
+	{
+		return $this->seen;
+	}
+	
+	/**
+	 * get recent state
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @return bool
+	*/
+	public function isRecent()
+	{
+		return $this->recent;
+	}
 	
 	/**
 	 * create mail part for attachment or embedded file
 	 *
-	 * @since 0.1
-	 * @access public
+	 * @since 0.1.0
+	 * @access protected
 	 * @return void
 	 * @param string $content file content or file path
 	 * @param string $name filename
 	 * @param string $encoding encoding type
 	 * @param string $cType content type
 	*/
-	function &_createMailPart($content, $name=null, $encoding='base4', $cType='application/octet-stream')
+	protected function _createMailPart($content, $name=null, $encoding='base4', $cType='application/octet-stream')
 	{
 		if(is_readable($content)) {
 			$content = file_get_contents($content);			

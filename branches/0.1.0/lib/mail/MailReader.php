@@ -40,6 +40,14 @@ abstract class MailReader
 	*/
 	const SSL_NOVALIDATE = 2;
 	
+	/**
+	 * secure authentication
+	 *
+	 * @accss public
+	 * @var int
+	*/
+	const SECURE_AUTH = 4;
+	
 
 	/**
 	 * mail box handle
@@ -86,15 +94,18 @@ abstract class MailReader
 	*/
 	public function connect($host, $user, $password, $type, $mailbox, $port, $secure)
 	{
+		if((SELF::SECURE_AUTH & $secure) == SELF::SECURE_AUTH) {
+			$type .= '/secure';
+			$secure = SELF::SECURE_AUTH ^ $secure;
+		}
+		
 		switch($secure) {
 			case SELF::SSL_VALIDATE:
 				$type .= '/ssl/validate-cert';
-				$port = 993;
 			break;
 			
 			case SELF::SSL_NOVALIDATE:
 				$type .= '/ssl/novalidate-cert';
-				$port = 995;
 			break;
 		}
 				
@@ -112,8 +123,9 @@ abstract class MailReader
 		
 		if(is_array($errors) && count($errors) > 0) {
 			throw new MailException(sprintf(
-				"Can not connect create imap connection using this dsn '%'",
-				$dsn)				
+				"Can not connect create imap connection using this dsn '%'. "
+				. "Following imap errors are caught: '%s'",
+				$dsn, print_r($errors, true))				
 			);
 			
 			return false;
@@ -360,8 +372,9 @@ abstract class MailReader
 				break;		
 				
 			default:
+				$content = $body;
 				throw new MailException(sprintf(
-					"Can not decode body whith encoding '%s'", $part['encoding']
+					"Encoding method '%s' is not supported", $part['encoding']
 					)
 				);
 		}
@@ -377,7 +390,96 @@ abstract class MailReader
 			);			
 		}
 	}
-}
+	
+	/**
+	 * parse header of current mail message
+	 *
+	 * @since 0.1
+	 * @access protected
+	 * @return void
+	 * @param MailMessage $mail
+	*/
+	protected function _parseHeader(MailMessage $mail)
+	{
+		$data = imap_header($this->handle, $this->current);
+		
+		$mail->setMessageId($data->message_id);
+		$mail->setSubject($data->subject);
+		$mail->setDate($data->date);
+		
+		$from = $this->_transformAdress($data->from[0]);
+		$seen = ($data->Recent == 'N' || $data->Unseen == 'U') ? false : true;
 
+		$mail->setFrom($[0], $from[1]);		
+		$this->setRecent(($data->Recent == '') ? false : true);
+		$this->setSeen($seen);
+		
+		if(is_array($this->to)) {
+			foreach($this->to as $adress) {
+				$adress = $this->_transformAdress($adress);
+				$mail->addTo($adress[0], $adress[1]);
+			}
+		}
+		
+		if(is_array($this->cc)) {
+			foreach($this->cc as $adress) {
+				$adress = $this->_transformAdress($adress);
+				$mail->addCc($adress[0], $adress[1]);
+			}
+		}
+		
+		if(is_array($this->bcc)) {
+			foreach($this->bcc as $adress) {
+				$adress = $this->_transformAdress($adress);
+				$mail->addBcc($adress[0], $adress[1]);
+			}
+		}
+		
+		if(is_array($this->return_path)) {
+			foreach($this->return_path as $adress) {
+				$adress = $this->_transformAdress($adress);
+				$mail->addReplyTo($adress[0], $adress[1]);				
+			}
+		}
+	}	
+	
+	/**
+	 * transform a imap mail adress into an array array($adress, $name)
+	 *
+	 * @since 0.1
+	 * @access private
+	 * @return array
+	 * @final
+	 * @param object $adress
+	*/
+	final private function _transformAdress($adress)
+	{
+		return array($adress->mailbox . '@' . $adress->host, $adress->personal);
+	}
+	
+	
+	/**
+	 * get port number using security ports
+	 *
+	 * @since 0.1 
+	 * @access private
+	 * @final
+	 * @return int
+	 * @param int $secure
+	 * @param int $default
+	*/
+	final private function _getPort($secure, $default)
+	{
+		if((SELF::SSL_VALIDATE & $secure) == SELF::SSL_VALIDATE) {
+			return 993;
+		}
+		
+		if((SELF::SSL_NOVALIDATE & $secure) == SELF::SSL_NOVALIDATE) {
+			return 995;
+		}
+		
+		return $default;
+	}
+}
 
 ?>

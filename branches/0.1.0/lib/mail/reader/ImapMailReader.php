@@ -21,13 +21,17 @@ class ImapMailReader extends MailReader
 	 * @param string $user
 	 * @param string $password
 	 * @param int $secure level
+	 * @param int $port=null
 	 * @throws MailException
 	*/
-	public function connect($host, $user, $password, $secure=MailReader::SSL_NONE)
+	public function connect($host, $user, $password, $secure=MailReader::SSL_NONE, $port=null)
 	{
 		$type = '/service=imap';
 		$mailbox = 'INBOX';
-		$port = 143;
+		
+		if($port === null) {
+			$port = $this->_getPort($secure, 143);
+		}
 		
 		try {
 			$result = parent::connect(

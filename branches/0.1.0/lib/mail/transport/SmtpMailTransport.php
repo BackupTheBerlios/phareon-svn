@@ -24,7 +24,7 @@ include_once 'lib/mail/MailException.php';
  * @since 0.1
  * @package phareon.lib.mail.transport
 */
-class SMTPTransport extends MailTransport
+class SmtpMailTransport extends MailTransport
 {
 	/**
 	 * instance of pear's NET_SMTP class

@@ -23,12 +23,16 @@ class NntpMailReader extends MailReader
 	 * @param string $password
 	 * @param string $newsgroup name of newsgroup
 	 * @param int $secure level
+	 * @param int $port=null
 	 * @throws MailException
 	*/
-	public function connect($host, $user, $password, $newsgroup, $secure=MailReader::SSL_NONE)
+	public function connect($host, $user, $password, $newsgroup, $secure=MailReader::SSL_NONE, $port=null)
 	{
 		$type = '/nntp';
-		$port = 119;
+		
+		if($port === null) {
+			$port = $this->_getPort($secure, 119);
+		}
 		
 		try {
 			$result = parent::connect(

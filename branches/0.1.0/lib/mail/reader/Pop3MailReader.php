@@ -21,13 +21,17 @@ class Pop3MailReader extends MailReader
 	 * @param string $user
 	 * @param string $password
 	 * @param int $secure level
+	 * @param int $port=null
 	 * @throws MailException
 	*/
-	public function connect($host, $user, $password, $secure=MailReader::SSL_NONE)
+	public function connect($host, $user, $password, $secure=MailReader::SSL_NONE, $port=null)
 	{
 		$type = '/pop3';
 		$mailbox = 'INBOX';
-		$port = 110;
+		
+		if($port === null) {
+			$port = $this->_getPort($secure, 110);
+		}
 		
 		try {
 			$result = parent::connect(
