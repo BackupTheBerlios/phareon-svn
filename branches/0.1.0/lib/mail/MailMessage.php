@@ -20,7 +20,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $attachments = array();
+	protected $attachments = array();
 	
 	/**
 	 * bcc contact data
@@ -29,7 +29,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $bcc = array();
+	protected $bcc = array();
 	
 	/**
 	 * cc contact data
@@ -38,7 +38,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $cc = array();
+	protected $cc = array();
 	
 	/**
 	 * date
@@ -47,7 +47,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $date;		
+	protected $date;		
 	
 	/**
 	 * embededFiles 
@@ -56,7 +56,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $embededFiles = array();
+	protected $embededFiles = array();
 	
 	/**
 	 * from data
@@ -65,7 +65,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $from = array();
+	protected $from = array();
 	
 	/**
 	 * email headers
@@ -74,7 +74,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $headers = array();
+	protected $headers = array();
 	
 	/**
 	 * server hostname
@@ -83,7 +83,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $hostName;
+	protected $hostName;
 	
 	/**
 	 * html body
@@ -92,7 +92,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $htmlBody = null;
+	protected $htmlBody = null;
 	
 	/**
 	 * mail type
@@ -101,7 +101,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $mailType = null;
+	protected $mailType = null;
 	
 	/**
 	 * reply to contact data
@@ -110,7 +110,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $replyTo = array();
+	protected $replyTo = array();
 	
 	/**
 	 * priority of email
@@ -119,7 +119,7 @@ class MailMessage
 	 * @access protected
 	 * @var int
 	*/
-	var $priority = 3;
+	protected $priority = 3;
 	
 	/**
 	 * mail subject 
@@ -128,7 +128,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $subject;
+	protected $subject;
 	
 	/**
 	 * plain text body 
@@ -137,7 +137,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $textBody;
+	protected $textBody;
 	
 	/**
 	 * to contact data
@@ -146,7 +146,7 @@ class MailMessage
 	 * @access protected
 	 * @var array
 	*/
-	var $to = array();
+	protected $to = array();
 	
 	/**
 	 * xMailer
@@ -155,7 +155,7 @@ class MailMessage
 	 * @access protected
 	 * @var string
 	*/
-	var $xMailer;
+	protected $xMailer;
 	
 	
 	/**
@@ -187,8 +187,11 @@ class MailMessage
 	*/
 	function addAttachment($content, $name=null, $encoding='base4', $cType='application/octet-stream')
 	{		
-		$part =& $this->_createMailPart($content, $name, $encoding, $cType);
+		$part = $this->_createMailPart($content, $name, $encoding, $cType);
+		$part->setDisposition('attachment');
 		$this->attachments[] =& $part;
+		
+		return $part;
 	}
 	
 	/**
@@ -233,7 +236,10 @@ class MailMessage
 	function addEmbeddedFile($content, $name=null, $encoding='base4', $cType='application/octet-stream')
 	{		
 		$part =& $this->_createMailPart($content, $name, $encoding, $cType);
+		$part->setDisposition('inline');
 		$this->embeddedFiles[] =& $part;
+		
+		return $part;
 	}
 	
 	/**
@@ -488,10 +494,10 @@ class MailMessage
 	*/
 	function send(&$transport)
 	{		
-		try(); {
+		try {
 			$transport->send($this);
 		}
-		if(catch('MailException', $e)) {
+		catch(MailException $e) {
 			throw($e);
 			return false;
 		}
@@ -634,9 +640,7 @@ class MailMessage
 		$part->setName($name);
 		
 		return $part;
-	}
-	
+	}	
 }
-
 
 ?>
